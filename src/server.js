@@ -16,15 +16,20 @@ const allowedOrigins = [
 app.use(
     cors({
         origin: function (origin, callback) {
-            // Allow requests with no origin
-            // (Postman, server-to-server requests, etc.)
+            console.log("REQUEST ORIGIN:", origin);
+
             if (!origin) {
                 return callback(null, true);
             }
 
-            if (allowedOrigins.includes(origin)) {
+            if (
+                allowedOrigins.includes(origin) ||
+                origin.endsWith(".vercel.app")
+            ) {
                 return callback(null, true);
             }
+
+            console.log("BLOCKED ORIGIN:", origin);
 
             return callback(new Error("Not allowed by CORS"));
         },
