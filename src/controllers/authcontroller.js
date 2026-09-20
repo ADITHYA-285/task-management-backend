@@ -29,7 +29,7 @@ const register = async (req, res) => {
         // 3. Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // 4. Create the user in MySQL
+        // 4. Create the user
         const user = await prisma.user.create({
             data: {
                 name: name,
@@ -39,7 +39,7 @@ const register = async (req, res) => {
         });
 
         // 5. Send response
-        res.status(201).json({
+        return res.status(201).json({
             message: "User registered successfully",
             user: {
                 id: user.id,
@@ -51,7 +51,7 @@ const register = async (req, res) => {
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
+        return res.status(500).json({
             message: "Something went wrong"
         });
     }
