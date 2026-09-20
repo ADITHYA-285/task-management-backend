@@ -6,30 +6,43 @@ const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        // 1. Check whether all fields are provided
+        // 1. Check required fields
         if (!name || !email || !password) {
             return res.status(400).json({
                 message: "Name, email and password are required"
             });
         }
 
-        // 2. Check whether the email already exists
-        const existingUser = await prisma.user.findUnique({
+        // 2. Check whether email already exists
+        const existingEmail = await prisma.user.findUnique({
             where: {
                 email: email
             }
         });
 
-        if (existingUser) {
+        if (existingEmail) {
             return res.status(409).json({
-                message: "User already exists"
+                message: "Email is already registered"
             });
         }
 
-        // 3. Hash the password
+        // 3. Check whether name already exists
+        const existingName = await prisma.user.findFirst({
+            where: {
+                name: name
+            }
+        });
+
+        if (existingName) {
+            return res.status(409).json({
+                message: "Name is already registered"
+            });
+        }
+
+        // 4. Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // 4. Create the user
+        // 5. Create user
         const user = await prisma.user.create({
             data: {
                 name: name,
@@ -38,7 +51,7 @@ const register = async (req, res) => {
             }
         });
 
-        // 5. Send response
+        // 6. Response
         return res.status(201).json({
             message: "User registered successfully",
             user: {
